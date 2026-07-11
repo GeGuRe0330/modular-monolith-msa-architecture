@@ -30,17 +30,16 @@ public class OrderItem {
     private BigDecimal price;
 
     @Column(nullable = false)
+    private Long productId;
+
+    @Column(nullable = false)
     private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
-    private Product product;
-
-    public static OrderItem create(Product product, int quantity) {
+    public static OrderItem create(String name, BigDecimal price, Long productId, int quantity) {
         OrderItem orderItem = new OrderItem();
-        orderItem.product = product;
-        orderItem.name = product.getName();
-        orderItem.price = product.getPrice();
+        orderItem.name = name;
+        orderItem.price = price;
+        orderItem.productId = productId;
         orderItem.quantity = quantity;
         return orderItem;
     }

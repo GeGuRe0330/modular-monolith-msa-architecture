@@ -20,16 +20,12 @@ public class Seller {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "seller")
-    private List<Product> products = new ArrayList<>();
+    @Column(nullable = false)
+    private Long userId;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    public static Seller create(User user) {
+    public static Seller create(Long userId) {
         Seller seller = new Seller();
-        seller.user = user;
+        seller.userId = userId;
 
         return seller;
     }
