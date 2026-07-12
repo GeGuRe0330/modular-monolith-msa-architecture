@@ -11,6 +11,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/orders")
 public class OrderController {
+
     private final OrderService orderService;
 
     @GetMapping
@@ -18,18 +19,25 @@ public class OrderController {
 
     @PostMapping
     public OrderResult placeOrder(@RequestBody OrderRequest request) {
-        return orderService.placeOrder(request.userId(), request.items());
+        return orderService.placeOrder(request.userId(), request.requests);
     }
 
     @GetMapping("/{orderId}")
-    public OrderConsistencyView inspectOrder(@PathVariable Long orderId) {return orderService.inspectOrder(orderId);}
-
-    @PatchMapping("/orderItems/{orderItemId}/price")
-    public void changeOrderItemPrice(@PathVariable Long orderItemId, @RequestParam BigDecimal price) {
-        orderService.changeOrderItemPrice(orderItemId, price);
+    public OrderConsistencyView inspectOrder(@PathVariable Long orderId) {
+        return orderService.inspectOrder(orderId);
     }
 
-    public record OrderRequest(@NonNull Long userId, @NonNull List<OrderLine> items) {}
+    @PatchMapping("/{orderId}/orderItems/{orderItemId}/price")
+    public void changeOrderItemPrice(@PathVariable Long orderId, @PathVariable Long orderItemId, @RequestParam BigDecimal price) {
+        orderService.changeItemPrice(orderId, orderItemId, price);
+    }
 
-    public record OrderLine(@NonNull Long productId, @NonNull Integer quantity) {}
+    @PatchMapping("/{orderId}/orderItems/{orderItemId}/quantity")
+    public void changeOrderItemQuantity(@PathVariable Long orderId, @PathVariable Long orderItemId, @RequestParam Integer quantity) {
+        orderService.changeItemQuantity(orderId, orderItemId, quantity);
+    }
+
+    public record OrderRequest(@NonNull Long userId, @NonNull List<OrderItemRequest> requests) {}
+
+    public record OrderItemRequest(@NonNull Long productId, @NonNull Integer quantity) {}
 }

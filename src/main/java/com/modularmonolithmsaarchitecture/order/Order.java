@@ -1,7 +1,5 @@
 package com.modularmonolithmsaarchitecture.order;
 
-import com.modularmonolithmsaarchitecture.payment.Payment;
-import com.modularmonolithmsaarchitecture.user.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,9 +28,11 @@ public class Order {
     @Column
     private Long paymentId;
 
-    @Setter
-    @Column(nullable = false)
-    private BigDecimal totalAmount;
+    @Embedded
+    @AttributeOverride(
+            name = "value",
+            column = @Column(name = "total_amount", nullable = false))
+    private Money totalAmount;
 
     @Setter
     @Enumerated(EnumType.STRING)
@@ -40,20 +40,22 @@ public class Order {
     private OrderStatus status;
 
     public static Order create(Long userId, List<OrderItem> items) {
-        Order order = new Order();
-        order.userId = userId;
-        order.status = OrderStatus.CREATED;
-        order.totalAmount = BigDecimal.ZERO;
-
-        for(OrderItem item : items) {
-            order.addOrderItem(item);
-        }
-
-        return order;
+        return new Order(userId, items);
     }
 
-    public void assignPayment(Long paymentId) {
-        this.paymentId = paymentId;
+    private Order(Long userId, List<OrderItem> items) {
+        validateItems(items);
+        items.forEach(this::addOrderItem);
+        this.userId = userId;
+        this.status = OrderStatus.CREATED;
+        this.totalAmount = calculateTotalAmount(items);
+    }
+
+
+    private void validateItems(List<OrderItem> items) {
+        if (items == null || items.isEmpty()) {
+            throw new IllegalStateException("주문할 상품이 없습니다.");
+        }
     }
 
     private void addOrderItem(OrderItem item) {
@@ -63,4 +65,41 @@ public class Order {
             item.assignOrder(this);
         }
     }
+
+    private Money calculateTotalAmount(List<OrderItem> items) {
+        return items.stream()
+                .map(e -> e.getPrice().times(e.getQuantity()))
+                .reduce(Money.zero(), Money::plus);
+    }
+
+    public void completePayment(Long paymentId) {
+        this.status = OrderStatus.PAID;
+        this.paymentId = paymentId;
+    }
+
+    public void changeItemPrice(Long orderItemId, BigDecimal newPrice) {
+        OrderItem target = items.stream()
+                .filter(e -> e.getId().equals(orderItemId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("주문에 없는 항목입니다."));
+
+        target.changePrice(newPrice);
+        this.totalAmount = calculateTotalAmount(items);
+    }
+
+    public void changeItemQuantity(Long orderItemId, int newQuantity) {
+        OrderItem target = items.stream()
+                .filter(e -> e.getId().equals(orderItemId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("주문에 없는 항목입니다."));
+
+        target.changeQuantity(newQuantity);
+        this.totalAmount = calculateTotalAmount(items);
+    }
+
+    public void assignPayment(Long paymentId) {
+        this.paymentId = paymentId;
+    }
+
+
 }

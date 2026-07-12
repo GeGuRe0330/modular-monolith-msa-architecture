@@ -56,6 +56,6 @@ public class OrderRepositoryTests {
         assertThat(foundItem.getQuantity()).isEqualTo(1);
         assertThat(foundItem.getProductId()).isEqualTo(product.getId());
         assertThat(foundItem.getName()).isEqualTo(product.getName());
-        assertThat(foundItem.getPrice()).isEqualByComparingTo(product.getPrice());
+        assertThat(foundItem.getPrice().getValue()).isEqualByComparingTo(product.getPrice());
     }
 }

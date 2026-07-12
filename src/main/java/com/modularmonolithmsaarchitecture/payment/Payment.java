@@ -31,4 +31,8 @@ public class Payment {
         payment.status = PaymentStatus.READY;
         return payment;
     }
+
+    public void changeStatus(PaymentStatus status) {
+        this.status = status;
+    }
 }

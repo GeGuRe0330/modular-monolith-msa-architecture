@@ -1,6 +1,5 @@
 package com.modularmonolithmsaarchitecture.cart;
 
-import com.modularmonolithmsaarchitecture.product.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

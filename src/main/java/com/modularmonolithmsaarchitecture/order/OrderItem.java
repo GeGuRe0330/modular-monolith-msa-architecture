@@ -1,11 +1,9 @@
 package com.modularmonolithmsaarchitecture.order;
 
-import com.modularmonolithmsaarchitecture.product.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -25,9 +23,12 @@ public class OrderItem {
     @Column(nullable = false)
     private String name;
 
-    @Setter
-    @Column(nullable = false)
-    private BigDecimal price;
+    @Embedded
+    @AttributeOverride(
+            name = "value",
+            column = @Column(name = "price", nullable = false)
+    )
+    private Money price;
 
     @Column(nullable = false)
     private Long productId;
@@ -38,10 +39,18 @@ public class OrderItem {
     public static OrderItem create(String name, BigDecimal price, Long productId, int quantity) {
         OrderItem orderItem = new OrderItem();
         orderItem.name = name;
-        orderItem.price = price;
+        orderItem.price = Money.from(price);
         orderItem.productId = productId;
         orderItem.quantity = quantity;
         return orderItem;
+    }
+
+    public void changePrice(BigDecimal newPrice) {
+        this.price = Money.from(newPrice);
+    }
+
+    public void changeQuantity(int newQuantity) {
+        this.quantity = newQuantity;
     }
 
     void assignOrder(Order order) {

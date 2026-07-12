@@ -1,11 +1,9 @@
 package com.modularmonolithmsaarchitecture.product;
 
-import com.modularmonolithmsaarchitecture.seller.Seller;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -27,7 +25,6 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @Setter
     @Column(nullable = false)
     private Integer stockQuantity;
 
@@ -43,4 +40,11 @@ public class Product {
         return product;
     }
 
+    public void decreaseStock(int quantity) {
+        if (this.stockQuantity < quantity) {
+            throw new IllegalStateException("재고가 부족합니다. product=" + this.name);
+        }
+
+        this.stockQuantity = (this.stockQuantity - quantity);
+    }
 }
