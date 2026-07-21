@@ -8,5 +8,4 @@ class ModularMonolithMsaArchitectureApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }
